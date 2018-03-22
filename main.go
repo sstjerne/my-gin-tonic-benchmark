@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"crypto/sha512"
+	"encoding/base64"
 	"crypto/sha1"
 	"io/ioutil"
 	"regexp"
@@ -33,11 +35,12 @@ func setupRouter() *gin.Engine {
 	// cpu test
 	r.GET("/cpu", func(c *gin.Context) {
 		hasher := []byte("Sparkers doing some benchmarking")
-		for i := 0; i < 255; i++ {
-			hasher := sha1.Sum(hasher)
-			fmt.Println(hasher)
+		sha512 := sha512.New()
+		for i := 0; i < 256; i++ {
+			sha512.Write(hasher)
 		}
-		c.JSON(200, gin.H{"Hashed": hasher })
+
+		c.JSON(200, gin.H{"Hashed": base64.URLEncoding.EncodeToString(sha512.Sum(nil)) })
 	})
 
 
@@ -60,7 +63,7 @@ func setupRouter() *gin.Engine {
 			fmt.Print(err)
 		}
 
-		f, err := os.Create("/tmp/dat2")
+		f, err := os.Create("/tmp/disk_test.csv.tmp")
 		check(err)	
 
 		defer f.Close()
@@ -68,6 +71,9 @@ func setupRouter() *gin.Engine {
 		n2, err := f.Write(byteArray)
 		check(err)
 		count := fmt.Sprintf("%d", n2)
+
+		f, err := os.Remove("/tmp/disk_test.csv.tmp")
+		check(err)
 
 		c.JSON(200, gin.H{"bytes": count })
 	})
@@ -77,6 +83,6 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
+	// Listen and Server in 0.0.0.0:80
+	r.Run(":80")
 }
