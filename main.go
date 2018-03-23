@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"crypto/sha512"
 	"encoding/base64"
-	"crypto/sha1"
 	"io/ioutil"
 	"regexp"
 	"fmt"
@@ -72,8 +71,8 @@ func setupRouter() *gin.Engine {
 		check(err)
 		count := fmt.Sprintf("%d", n2)
 
-		f, err := os.Remove("/tmp/disk_test.csv.tmp")
-		check(err)
+		err1 := os.Remove("/tmp/disk_test.csv.tmp")
+		check(err1)
 
 		c.JSON(200, gin.H{"bytes": count })
 	})
